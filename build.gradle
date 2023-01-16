@@ -1,15 +1,26 @@
 plugins {
-    id 'java'
+    id 'java-gradle-plugin'
+    id 'maven-publish'
 }
 
-group 'org.example'
+group 'org.plugin'
 version '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
 }
 
+gradlePlugin {
+    plugins {
+        simplePlugin {
+            id = 'org.plugin.sender'
+            implementationClass = 'org.plugin.SenderPlugin'
+        }
+    }
+}
+
 dependencies {
+
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
 }
