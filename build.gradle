@@ -1,6 +1,7 @@
 plugins {
     id 'java-gradle-plugin'
     id 'maven-publish'
+    id 'java'
 }
 
 group 'org.plugin'
@@ -20,11 +21,10 @@ gradlePlugin {
 }
 
 dependencies {
-
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+    implementation group: 'org.testng', name: 'testng', version: '7.7.1'
 }
 
 test {
-    useJUnitPlatform()
+    useTestNG()
 }
+
