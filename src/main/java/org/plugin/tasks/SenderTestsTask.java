@@ -1,5 +1,7 @@
 package org.plugin.tasks;
 
+import io.restassured.RestAssured;
+import io.restassured.response.Response;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -16,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.file.Paths;
 import java.util.*;
 
 public class SenderTestsTask extends DefaultTask {
@@ -26,17 +29,18 @@ public class SenderTestsTask extends DefaultTask {
     public void send() {
         SamplePluginExtension extension = (SamplePluginExtension) project.getExtensions().getByName("defineToken");
         Map<String, String> resultsOfTests = getTestResults((Test) getTaskByName("test"));
-        StringBuilder resume = new StringBuilder();
-        resultsOfTests.forEach((key, value) -> resume.append(key).append("***").append(value).append("___"));
-        try {
-            HttpResponse<String> response = Client.post(String.format(
-                    "https://api.telegram.org/%s/sendMessage?chat_id=%d&text=%s",
-                    extension.getToken(), extension.getChatId(), resume
-            ), HttpRequest.BodyPublishers.noBody());
-            log.warn(String.format("Response status is %d ", response.statusCode()));
-        } catch (IOException | InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+
+//        StringBuilder resume = new StringBuilder();
+//        resultsOfTests.forEach((key, value) -> resume.append(key).append("***").append(value).append("___"));
+//        try {
+//            HttpResponse<String> response = Client.post(String.format(
+//                    "https://api.telegram.org/%s/sendMessage?chat_id=%d&text=%s",
+//                    extension.getToken(), extension.getChatId(), resume
+//            ), HttpRequest.BodyPublishers.noBody());
+//            log.warn(String.format("Response status is %d ", response.statusCode()));
+//        } catch (IOException | InterruptedException e) {
+//            throw new RuntimeException(e);
+//        }
     }
 
     private Task getTaskByName(String taskName){
@@ -73,6 +77,14 @@ public class SenderTestsTask extends DefaultTask {
             }
         });
         test.executeTests();
+
+
+        Response e = RestAssured.given().
+                baseUri("https://api.telegram.org/bot5979849534:AAF4WfbQUzehAGcLFY4ptcXukVb4iyLwFyA")
+                .multiPart("document", test.getReports().getHtml().getEntryPoint(), "text/plain")
+                .multiPart("chat_id", 665918456, "multipart/form-data")
+                .post("/sendMessage");
+        System.out.println("99000009999" + e.body().print());
         return resultsOfTests;
     }
 }
