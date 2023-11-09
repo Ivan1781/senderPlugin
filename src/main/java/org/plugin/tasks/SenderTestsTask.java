@@ -11,7 +11,6 @@ public class SenderTestsTask extends DefaultTask {
 
     @TaskAction
     public void send() {
-        Client a = new TelegramClient();
-        a.send(project);
+        new TelegramClient().sendReport(project);
     }
 }

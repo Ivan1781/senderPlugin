@@ -5,6 +5,8 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
+import org.apache.http.entity.EntityTemplate;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.gradle.api.Project;
@@ -28,24 +30,41 @@ import java.util.Set;
 public class TelegramClient implements Client {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     @Override
-    public void send(Project project) {
+    public void sendReport(Project project) {
         SamplePluginExtension extension = (SamplePluginExtension) project.getExtensions().getByName("defineToken");
         Map<String, String> resultsOfTests = getTestResults((Test) getTaskByName("test", project));
         StringBuilder resume = new StringBuilder();
         resultsOfTests.forEach((key, value) -> resume.append(key).append("***").append(value).append("___"));
         try {
-            String apiUrl = String.format("https://api.telegram.org/bot%s/sendDocument?chat_id=%d",
-                    extension.getToken(), extension.getChatId());
+            long chatId = extension.getChatId();
+            String token = extension.getToken();
+
+            String sendDocumentApiUrl = String.format("https://api.telegram.org/bot%s/sendDocument?chat_id=%d",
+                   token , chatId);
+            String sendMessageApiUrl = String.format("https://api.telegram.org/bot%s/sendMessage?chat_id=%d",
+                    token, chatId);
+
             File fileToUpload = Paths.get("/home/ivan/projects/cucumberTestNg/build/cucumber/tests.html").toFile();
             HttpClient httpClient = HttpClients.createDefault();
-            HttpPost httpPost = new HttpPost(apiUrl);
-            HttpEntity entity = MultipartEntityBuilder.create()
+
+            String bodySendMessage = String.format("""
+                        {"text": "%s"}
+                    """, resume);
+
+            HttpPost httpSendMessage = new HttpPost(sendMessageApiUrl);
+            httpSendMessage.setEntity(new StringEntity(bodySendMessage, ContentType.APPLICATION_JSON));
+            HttpResponse responseSendMessage = httpClient.execute(httpSendMessage);
+
+            HttpPost httpSendDocument = new HttpPost(sendDocumentApiUrl);
+            HttpEntity entityDocument = MultipartEntityBuilder.create()
                     .addBinaryBody("document", fileToUpload, ContentType.DEFAULT_BINARY, fileToUpload.getName())
                     .build();
-            httpPost.setEntity(entity);
-            HttpResponse response = httpClient.execute(httpPost);
+            httpSendDocument.setEntity(entityDocument);
+            HttpResponse responseSendDocument = httpClient.execute(httpSendDocument);
 
-            log.warn(String.format("Response status is %d ", response.getStatusLine().getStatusCode()));
+            log.warn(String.format("Response status is %d ", responseSendMessage.getStatusLine().getStatusCode()));
+            log.warn(String.format("Response status is %d ", responseSendDocument.getStatusLine().getStatusCode()));
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -66,17 +85,17 @@ public class TelegramClient implements Client {
         test.addTestListener(new TestListener() {
             @Override
             public void beforeSuite(TestDescriptor testDescriptor) {
-
+                log.info("before Suite");
             }
 
             @Override
             public void afterSuite(TestDescriptor testDescriptor, TestResult testResult) {
-
+                log.info("after Suite");
             }
 
             @Override
             public void beforeTest(TestDescriptor testDescriptor) {
-
+                log.info("before Test: " + testDescriptor.getName());
             }
 
             @Override
