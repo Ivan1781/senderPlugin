@@ -1,8 +1,10 @@
 plugins {
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
     id 'java-gradle-plugin'
     id 'maven-publish'
     id 'java'
 }
+
 
 group 'org.plugin'
 version '1.0-SNAPSHOT'
@@ -11,11 +13,20 @@ repositories {
     mavenCentral()
 }
 
+publishing {
+  publications {
+    shadow(MavenPublication) { publication ->
+      project.shadow.component(publication)
+    }
+  }
+}
+
+
 gradlePlugin {
     plugins {
         simplePlugin {
-            id = 'org.plugin.sender'
-            implementationClass = 'org.plugin.SenderPlugin'
+            id = 'org.plugin.sender'  // The plugin ID is used when applying the plugin in other projects.
+            implementationClass = 'org.plugin.SenderPlugin' // Fully qualified class name of the plugin implementation. This class should implement the org.gradle.api.Plugin interface and define the behavior of the plugin.
         }
     }
 }
@@ -25,6 +36,8 @@ dependencies {
     implementation group: 'org.apache.directory.studio', name: 'org.apache.httpcomponents.httpclient', version: '4.1.2'
     implementation group: 'org.apache.directory.studio', name: 'org.apache.httpcomponents.httpcore', version: '4.1.2'
     implementation group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.5.14'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.12.7'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.7'
 }
 
 test {
