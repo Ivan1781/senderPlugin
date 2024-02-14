@@ -4,7 +4,6 @@ import org.gradle.api.tasks.testing.Test;
 import org.gradle.api.tasks.testing.TestDescriptor;
 import org.gradle.api.tasks.testing.TestListener;
 import org.gradle.api.tasks.testing.TestResult;
-import org.plugin.reportCreator.report.Report;
 import org.plugin.reportCreator.report.ReportMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,16 +15,9 @@ public class TestResultGetterMessage implements TestResultsGetter {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    // public String getReport(Test test) {
-    //     List<Report> reports = getTestResults(test);
-    //     StringBuilder stringReport = new StringBuilder();
-    //     reports.forEach(result -> stringReport.append(result));
-    //     return stringReport.toString();
-    // }
-
     @Override
-    public List<Report> getTestResults(Test test) {
-        List<Report> reports = new ArrayList<>();
+    public List<ReportMessage> getTestResults(Test test) {
+        List<ReportMessage> reports = new ArrayList<>();
         test.addTestListener(new TestListener() {
             @Override
             public void beforeSuite(TestDescriptor testDescriptor) {
@@ -44,11 +36,13 @@ public class TestResultGetterMessage implements TestResultsGetter {
 
             @Override
             public void afterTest(TestDescriptor testDescriptor, TestResult testResult) {
-                Report report = new ReportMessage.ReportMessageBuilder()
+                ReportMessage report = new ReportMessage.ReportMessageBuilder()
                         .setTestClassName(testDescriptor.getClassName())
                         .setTestName(testDescriptor.getName())
                         .setResult(testResult.getResultType().name())
+                        .setFailure(!testResult.getFailures().isEmpty() ? testResult.getFailures().get(0).getDetails().getMessage() : null  )
                         .build();
+                log.error("SKIP " + testResult.getSkippedTestCount());
                 reports.add(report);
             }
         });

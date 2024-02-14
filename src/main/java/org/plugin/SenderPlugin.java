@@ -18,8 +18,6 @@ public class SenderPlugin implements Plugin<Project> {
         project.getPluginManager().apply("java");
         project.getTasks().register("sendTestResults", SenderTestsTask.class);
 
-//        String myPluginProperty = project.property("myToken").toString();
-
         Set<Task> tasks = project.getTasks();
         List<Task> listTasks = new ArrayList<>();
 
