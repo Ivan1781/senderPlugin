@@ -6,7 +6,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClients;
-import org.bodyprovider.MessageBodyProvider;
+import org.plugin.bodyprovider.MessageBodyProvider;
 import org.gradle.api.Project;
 
 import org.plugin.extensions.SamplePluginExtension;

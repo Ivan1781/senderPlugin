@@ -1,4 +1,4 @@
-package org.bodyprovider;
+package org.plugin.bodyprovider;
 
 public class MessageBodyProvider {
     public static String getBodyForMessage(String report) {
