@@ -14,7 +14,7 @@ import org.plugin.reportCreator.ReportCreator;
 import org.plugin.reportCreator.ReportCreatorMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import utils.PropertyReader;
+import org.plugin.utils.PropertyReader;
 
 import java.io.IOException;
 
